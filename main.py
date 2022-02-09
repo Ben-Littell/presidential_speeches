@@ -1,5 +1,6 @@
 import statistics as stats
 import matplotlib.pyplot as plt
+import math
 
 
 def open_file(filename):
@@ -8,7 +9,7 @@ def open_file(filename):
     new_dict = {}
     with open(filename) as file:
         text = file.read()
-        s_text = text.split('$ ')
+        s_text = text.split('$')
         for item in s_text[1:]:
             speech = ''
             new_list = []
@@ -28,6 +29,49 @@ def plot_data(title, x1, y1, y_label, x_label, plot_code1='-b*'):
     plt.ylabel(y_label)
     plt.xlabel(x_label)
     plt.plot(x1, y1, plot_code1)
+
+
+def sentence_len(text):
+    new_dict = {}
+    punc_list = ['.', '!', '?', ':']
+    for val in text:
+        speech2 = text[val][0]['Speech']
+        w_counter = 0
+        len_list = []
+        for item in speech2:
+            w_counter += 1
+            for char in item:
+                if char in punc_list:
+                    len_list.append(w_counter)
+                    w_counter = 0
+        new_dict.update({text[val][2]['Date']: stats.mean(len_list)})
+
+    return new_dict
+
+
+def gaussian_distribution():
+    pass
+
+
+def grade_level(speech, ave_sen):
+    grade_list = []
+    vowel_list = ['A', 'E', 'I', 'O', 'U']
+    speech_counter = 0
+    for val in speech:
+        s_ave = ave_sen[speech_counter]
+        speech_counter += 1
+        speech2 = text[val][0]['Speech']
+        clean_list = []
+        for word in speech2:
+            new_word = ''
+            for char in word:
+                if char.isalpha():
+                    new_word += char
+            clean_list.append(new_word)
+        for word in clean_list:
+            counter = 0
+
+
 
 
 text = open_file('Inaugural_addresses.txt')
@@ -64,9 +108,8 @@ for val in text:
             w_counter += 1
     word_ave_dict[text[val][2]['Date']] = w_counter/len(speech)
 
-word_ave = []
-for item in word_ave_dict:
-    word_ave.append(word_ave_dict[item])
+word_ave = [word_ave_dict[item] for item in word_ave_dict]
+
 
 plot_data('% word len >= 8', date_list, word_ave, 'Percent', 'Dates')
 plt.axhline(stats.mean(word_ave))
@@ -74,17 +117,12 @@ plt.axhline(stats.mean(word_ave)+stats.stdev(word_ave))
 plt.axhline(stats.mean(word_ave)-stats.stdev(word_ave))
 plt.show()
 
-punc_list = ['.', '!', '?']
-for val in text:
-    speech2 = text[val][0]['Speech']
-    w_counter = 0
-    len_list = []
-    for item in speech2:
-        for char in item:
-            if char in punc_list:
-                len_list.append(w_counter)
+sentence_len_dict = sentence_len(text)
+sen_ave = [sentence_len_dict[item] for item in sentence_len_dict]
 
+plot_data('Average Sentence Length', date_list, sen_ave, 'Average Length', 'Dates')
+plt.show()
 
-# print(text['GEORGEWASHINGTON1'][3]['Uncut'])
+# print(text['GEORGEWASHINGTON1'][0]['Speech'])
 
 
